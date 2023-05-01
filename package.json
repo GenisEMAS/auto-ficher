@@ -1,0 +1,16 @@
+{
+  "name": "ficher",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cron": "^2.3.0",
+    "date-fns": "^2.29.3",
+    "mysql2": "^3.2.4"
+  }
+}
