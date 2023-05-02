@@ -1,39 +1,60 @@
-const mysql = require("mysql2/promise");
-var CronJob = require("cron").CronJob;
-const format = require("date-fns/format");
+const { connectarDB, checkTableExists } = require("./src/db");
+const {
+  getRandomizedDate,
+  comprovarValores,
+  comprovarHora,
+} = require("./src/utils");
+const { getAutoConf, addFichaje } = require("./src/sql");
+const CronJob = require("cron").CronJob;
 
-function getRandomizedDate() {
-  const fechaFichaje = new Date();
-  const randomOffset = Math.floor(Math.random() * 11) - 5;
-  fechaFichaje.setMinutes(fechaFichaje.getMinutes() + randomOffset);
-  return format(fechaFichaje, "yyyy-MM-dd HH:mm:ss");
-}
-
-async function insertarFichaje(tipo) {
+async function empezarAutomatismo() {
   console.log("Job started");
-
-  const pool = mysql.createPool({
-    host: "localhost",
-    user: "root",
-    port: 33060,
-    password: "2132",
-    database: "emasplatform",
-  });
-
-  const connection = await pool.getConnection();
-
+  const connection = await connectarDB();
   try {
-    const [rows, _] = await connection.execute(
-      "select * from usuarios_emas_platform where auto = true"
-    );
+    // Comprovar que la tabla fichaje_auto_conf existe sino crearla
+    await checkTableExists(connection);
 
-    for (let i = 0; i < rows.length; i++) {
-      console.log(rows[i].codigo);
-      const codigoUsuario = rows[i].codigo;
-      const fechaFichaje = getRandomizedDate();
-      await connection.execute(
-        `insert into fichajes (ID_USUARIO,FECHA_FICHAJE,SENTIDO,NOTA) values (${codigoUsuario},'${fechaFichaje}',${tipo},'')`
-      );
+    const rows = await getAutoConf(connection);
+
+    for (const row of rows) {
+      const codigo = row.idUsuario;
+      const entradas = row.entradas.split(",");
+      const salidas = row.salidas.split(",");
+      const dias = row.dias.split(",");
+
+      // Comprovar que los valores son correctos
+      const valido = comprovarValores(entradas, salidas, dias);
+      if (!valido) {
+        continue;
+      }
+
+      // Comprovar si el dia actual esta en la lista de dias a fichar
+      const dia = new Date().getDay();
+      const diaValido = dias.includes(dia.toString());
+      if (!diaValido) {
+        continue;
+      }
+
+      // Recorrer las entradas y salidas y añadir los fichajes
+      for (let i = 0; i < entradas.length; i++) {
+        const entrada = entradas[i];
+        const salida = salidas[i];
+
+        // Comprovar que las horas son validas
+        const entradaValida = comprovarHora(entrada);
+        const salidaValida = comprovarHora(salida);
+
+        if (!entradaValida || !salidaValida) {
+          continue;
+        }
+
+        // Añadir los fichajes
+        const fechaEntrada = getRandomizedDate(entrada);
+        const fechaSalida = getRandomizedDate(salida);
+
+        await addFichaje(connection, codigo, fechaEntrada, 0);
+        await addFichaje(connection, codigo, fechaSalida, 1);
+      }
     }
   } catch (error) {
     console.log(error);
@@ -44,21 +65,12 @@ async function insertarFichaje(tipo) {
   console.log("Job finished");
 }
 
-var entrada = new CronJob(
+const job = new CronJob(
   "* * * * * *",
-  () => insertarFichaje(1),
+  () => empezarAutomatismo(),
   null,
   false,
   "Europe/Madrid"
 );
 
-var salida = new CronJob(
-  "* * * * * *",
-  () => insertarFichaje(0),
-  null,
-  false,
-  "Europe/Madrid"
-);
-
-entrada.start();
-salida.start();
+job.start();
