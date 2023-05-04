@@ -74,3 +74,5 @@ const job = new CronJob(
 );
 
 job.start();
+
+console.log("Job scheduled, running correctly...");
