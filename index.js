@@ -20,9 +20,10 @@ const port = 3002;
 app.use(cors());
 app.use(bodyParser.json())
 
+// Cada dia a las 12AM
 const job = new CronJob(
-  "* * * * * *",
-  () => {},//empezarAutomatismo(pool),
+  "0 0 * * * *",
+  () => empezarAutomatismo(pool),
   null,
   false,
   "Europe/Madrid"
