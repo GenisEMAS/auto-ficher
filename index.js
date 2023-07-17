@@ -2,7 +2,7 @@ const CronJob = require("cron").CronJob;
 const mysql = require("mysql2/promise");
 const cors = require('cors');
 const { empezarAutomatismo } = require("./src/automatismo");
-const { read, readByNombre, getProgramacionByCodigo, create, remove, update } = require("./src/db");
+const { checkTableExists,read, readByNombre, getProgramacionByCodigo, create, remove, update } = require("./src/db");
 const express = require('express');
 const bodyParser = require("body-parser");
 
@@ -11,10 +11,13 @@ require('dotenv').config()
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  password: 'D3v3#2021',
   port: process.env.DB_PORT,
   database: process.env.DB_DB,
 });
+
+// Comprovar que la tabla fichaje_auto_conf existe sino crearla
+checkTableExists(pool);
 
 const app = express();
 const port = process.env.APP_PORT;
