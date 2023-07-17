@@ -6,12 +6,14 @@ const { read, readByNombre, getProgramacionByCodigo, create, remove, update } = 
 const express = require('express');
 const bodyParser = require("body-parser");
 
+require('dotenv').config()
+
 const pool = mysql.createPool({
-  host: "localhost",
-  user: "root",
-  password: "D3v3#2021",
-  port: 3306,
-  database: "emasplatform",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+  database: process.env.DB_DB,
 });
 
 const app = express();
@@ -29,7 +31,7 @@ const job = new CronJob(
   "Europe/Madrid"
 );
 
-job.start();
+//job.start();
 
 console.log("Job scheduled, running correctly...");
 
