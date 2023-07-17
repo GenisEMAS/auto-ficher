@@ -17,7 +17,7 @@ const pool = mysql.createPool({
 });
 
 const app = express();
-const port = 3002;
+const port = process.env.APP_PORT;
 
 app.use(cors());
 app.use(bodyParser.json())
@@ -31,7 +31,7 @@ const job = new CronJob(
   "Europe/Madrid"
 );
 
-//job.start();
+job.start();
 
 console.log("Job scheduled, running correctly...");
 
