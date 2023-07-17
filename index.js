@@ -53,7 +53,8 @@ app.get('/programacion/:codigo', async (req, res) => {
 })
 
 app.post('/', async (req, res) => {
-  res.status(201).send(await create(pool, req.body))
+  const results = await create(pool, req.body)
+  res.status(201).send({ id: results.insertId })
 })
 
 app.put('/:id', async (req, res) => {

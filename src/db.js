@@ -26,7 +26,7 @@ async function create(pool, data) {
   const sql = `INSERT INTO fichaje_auto_conf (${columns}) VALUES (${values})`;
   const params = Object.values(data);
   const [result] = await pool.query(sql, params);
-  return (result).insertId;
+  return result.insertId;
 }
 
 async function read(pool, table) {
