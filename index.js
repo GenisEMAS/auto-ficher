@@ -35,7 +35,7 @@ app.use(bodyParser.json());
 
 // Cada dia a las 12AM
 const job = new CronJob(
-  "* * * * * *",
+  "0 0 * * * *",
   () => empezarAutomatismo(pool),
   null,
   false,
