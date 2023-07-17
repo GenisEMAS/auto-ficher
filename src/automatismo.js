@@ -10,9 +10,6 @@ async function empezarAutomatismo(pool) {
   console.log("Job started");
   const connection = await pool.getConnection();
   try {
-    // Comprovar que la tabla fichaje_auto_conf existe sino crearla
-    await checkTableExists(connection);
-
     const rows = await getAutoConf(connection);
 
     for (const row of rows) {

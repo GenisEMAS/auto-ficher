@@ -1,9 +1,10 @@
 const format = require("date-fns/format");
 
-function getRandomizedDate(hour) {
+function getRandomizedDate(time) {
+  const [hora, minuto] = time.split(":");
   const fechaFichaje = new Date();
-  fechaFichaje.setHours(hour);
-  fechaFichaje.setMinutes(0);
+  fechaFichaje.setHours(hora);
+  fechaFichaje.setMinutes(minuto);
   const randomOffset = Math.floor(Math.random() * 11) - 5;
   fechaFichaje.setMinutes(fechaFichaje.getMinutes() + randomOffset);
   return format(fechaFichaje, "yyyy-MM-dd HH:mm:ss");
