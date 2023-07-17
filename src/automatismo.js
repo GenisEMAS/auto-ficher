@@ -1,4 +1,3 @@
-const { checkTableExists } = require("./db");
 const {
   getRandomizedDate,
   comprovarValores,
